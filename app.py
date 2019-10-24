@@ -155,8 +155,8 @@ def password_is_strong(password):
     # password dictionary check
     if conf.getboolean('dictionary_check_enabled', False):
         with open(conf['dictionary_file'], 'rt') as dictionary_file:
-            dictionary = [line.strip() for line in dictionary_file.readlines()]
-        if password in dictionary:
+            bad_passwords_list = [line.strip() for line in dictionary_file.readlines()]
+        if any([password.lower() in line.lower() for line in bad_passwords_list]):
             LOG.warning("Password is weak because it is present in dictionary.")
             return False
     # return True if not yet returned (password is strong)
