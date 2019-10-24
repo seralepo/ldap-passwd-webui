@@ -20,6 +20,11 @@ search_filter = uid={uid}
 #base = ou=People,dc=example,dc=org
 #search_filter = uid={uid}
 
+[password_checker]
+min_length = 8
+dictionary_check_enabled = true
+dictionary_file = dictionary_example.txt
+
 [server]
 server = auto
 host = localhost

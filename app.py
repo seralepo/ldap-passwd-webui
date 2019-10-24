@@ -35,8 +35,8 @@ def post_index():
     if form('new-password') != form('confirm-password'):
         return error("Password doesn't match the confirmation!")
 
-    if len(form('new-password')) < 8:
-        return error("Password must be at least 8 characters long!")
+    if not password_is_strong(form('new-password')):
+        return error("Password does not meet complexity/strength requirements!")
 
     try:
         change_passwords(form('username'), form('old-password'), form('new-password'))
@@ -142,6 +142,25 @@ def read_config():
     config.read([path.join(BASE_DIR, 'settings.ini'), os.getenv('CONF_FILE', '')])
 
     return config
+
+
+# this returns True if password is strong (based on a set of checks)
+def password_is_strong(password):
+    conf = CONF['password_checker']
+    # password length check
+    if len(password) < conf.getint('min_length', 8):
+        LOG.warning("Password is weak because it is too short.")
+        return False
+    # TODO password entropy check
+    # password dictionary check
+    if conf.getboolean('dictionary_check_enabled', False):
+        with open(conf['dictionary_file'], 'rt') as dictionary_file:
+            dictionary = [line.strip() for line in dictionary_file.readlines()]
+        if password in dictionary:
+            LOG.warning("Password is weak because it is present in dictionary.")
+            return False
+    # return True if not yet returned (password is strong)
+    return True
 
 
 class Error(Exception):
