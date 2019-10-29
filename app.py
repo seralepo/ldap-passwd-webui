@@ -36,7 +36,7 @@ def post_index():
         return error("Password doesn't match the confirmation!")
 
     if not password_is_strong(form('new-password')):
-        return error("Password does not meet complexity/strength requirements!")
+        return error("Password did not pass quality checks!")
 
     try:
         change_passwords(form('username'), form('old-password'), form('new-password'))
@@ -144,25 +144,29 @@ def read_config():
     return config
 
 
-# this returns True if password is strong (based on a set of checks)
+# this returns True if password is strong (based on a set of quality checks)
 def password_is_strong(password):
-    if 'password_checker' in CONF.keys():
-        conf = CONF['password_checker']
+    if 'password_quality' in CONF.keys():
+        conf = CONF['password_quality']
     else:
+        LOG.warning("Password quality checker is disabled.")
         return True
     # password length check
     if len(password) < conf.getint('min_length', 8):
-        LOG.warning("Password is weak because it is too short.")
+        LOG.debug("Password is weak because it is too short.")
         return False
     # number of password complexity checks
     if conf.getboolean('mixed_case_required', False):
-        if password.lower() == password or password.upper() == password:
+        if password.islower() or password.isupper() or password.isdigit():
+            LOG.debug("Password is weak because it is not mixed case.")
             return False
     if conf.getboolean('digit_required', False):
         if not any([digit in password for digit in '0123456789']):
+            LOG.debug("Password is weak because it contains no digits.")
             return False
     if conf.getboolean('special_required', False):
         if not any([special in password for special in '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~']):
+            LOG.debug("Password is weak because it contains no special characters.")
             return False
     # password dictionary check
     if conf.getboolean('dictionary_check_enabled', False):
@@ -172,9 +176,10 @@ def password_is_strong(password):
                     continue
                 pattern = line.rstrip().lower()
                 if pattern in password.lower():
-                    LOG.warning("Password is weak because its part is present in dictionary.")
+                    LOG.debug("Password is weak because its part is present in dictionary.")
                     return False
     # return True if not yet returned (password is strong)
+    LOG.info("Password quality check passed.")
     return True
 
 

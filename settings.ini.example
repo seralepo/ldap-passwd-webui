@@ -20,8 +20,8 @@ search_filter = uid={uid}
 #base = ou=People,dc=example,dc=org
 #search_filter = uid={uid}
 
-# Uncomment following lines to enable password complexity checks
-#[password_checker]
+# Uncomment following lines to enable password quality checks
+#[password_quality]
 #min_length = 8
 #mixed_case_required = true
 #digit_required = true
