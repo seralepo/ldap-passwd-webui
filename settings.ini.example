@@ -20,10 +20,14 @@ search_filter = uid={uid}
 #base = ou=People,dc=example,dc=org
 #search_filter = uid={uid}
 
-[password_checker]
-min_length = 8
-dictionary_check_enabled = true
-dictionary_file = dictionary_example.txt
+# Uncomment following lines to enable password complexity checks
+#[password_checker]
+#min_length = 8
+#mixed_case_required = true
+#digit_required = true
+#special_required = false
+#dictionary_check_enabled = true
+#dictionary_file = dictionary_example.txt
 
 [server]
 server = auto

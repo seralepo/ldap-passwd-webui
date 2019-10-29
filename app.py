@@ -146,12 +146,24 @@ def read_config():
 
 # this returns True if password is strong (based on a set of checks)
 def password_is_strong(password):
-    conf = CONF['password_checker']
+    if 'password_checker' in CONF.keys():
+        conf = CONF['password_checker']
+    else:
+        return True
     # password length check
     if len(password) < conf.getint('min_length', 8):
         LOG.warning("Password is weak because it is too short.")
         return False
-    # TODO password entropy check
+    # number of password complexity checks
+    if conf.getboolean('mixed_case_required', False):
+        if password.lower() == password or password.upper() == password:
+            return False
+    if conf.getboolean('digit_required', False):
+        if not any([digit in password for digit in '0123456789']):
+            return False
+    if conf.getboolean('special_required', False):
+        if not any([special in password for special in '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~']):
+            return False
     # password dictionary check
     if conf.getboolean('dictionary_check_enabled', False):
         with open(conf['dictionary_file'], 'rt') as dictionary_file:
