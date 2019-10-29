@@ -158,7 +158,7 @@ def password_is_strong(password):
             for line in dictionary_file:
                 if line.isspace():
                     continue
-                pattern = line.strip().lower()
+                pattern = line.rstrip().lower()
                 if pattern in password.lower():
                     LOG.warning("Password is weak because its part is present in dictionary.")
                     return False
